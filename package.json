@@ -1,0 +1,11 @@
+{
+  "name": "spidey",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --filter './apps/*' dev",
+    "build": "bun run --filter './apps/*' build",
+    "lint": "bun run --filter '*' lint",
+    "type-check": "bun run --filter '*' type-check"
+  }
+}
