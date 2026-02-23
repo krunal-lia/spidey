@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import type { Monitor } from "@spidey/shared";
 
@@ -27,6 +27,7 @@ function timeAgo(dateStr: string | null): string {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: monitors, isLoading } = useQuery({
     queryKey: ["monitors"],
@@ -82,19 +83,17 @@ export default function Dashboard() {
       ) : (
         <div className="space-y-3">
           {monitors.map((m: Monitor) => (
-            <div
+            <Link
               key={m.id}
-              className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center gap-4 hover:border-gray-700 transition"
+              to={`/monitors/${m.id}`}
+              className="flex bg-gray-900 border border-gray-800 rounded-xl p-4 items-center gap-4 hover:border-gray-700 transition"
             >
               <StatusDot status={m.lastStatus} />
 
               <div className="flex-1 min-w-0">
-                <Link
-                  to={`/monitors/${m.id}`}
-                  className="font-semibold hover:text-indigo-400 transition"
-                >
+                <span className="font-semibold hover:text-indigo-400 transition">
                   {m.name}
-                </Link>
+                </span>
                 <p className="text-sm text-gray-500 truncate">{m.url}</p>
               </div>
 
@@ -103,7 +102,8 @@ export default function Dashboard() {
                 <span>{timeAgo(m.lastCheckedAt)}</span>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+              <div className="flex items-center gap-2 shrink-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                 <button
                   onClick={() => triggerMutation.mutate(m.id)}
                   disabled={triggerMutation.isPending}
@@ -128,13 +128,13 @@ export default function Dashboard() {
                 >
                   {m.isActive ? "⏸" : "⏵"}
                 </button>
-                <Link
-                  to={`/monitors/${m.id}/edit`}
+                <button
+                  onClick={() => navigate(`/monitors/${m.id}/edit`)}
                   className="p-2 text-gray-400 hover:text-amber-400 hover:bg-gray-800 rounded-lg transition"
                   title="Edit"
                 >
                   ✎
-                </Link>
+                </button>
                 <button
                   onClick={() => {
                     if (confirm(`Delete "${m.name}"?`)) {
@@ -147,7 +147,7 @@ export default function Dashboard() {
                   ✕
                 </button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}
